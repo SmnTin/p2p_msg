@@ -11,5 +11,7 @@ include_directories (
 
 set(SOURCE src/p2p/NodeId.cpp src/p2p/P2P.cpp src/p2p/p2pAssert.cpp src/p2p/Network/NetworkEngine.cpp src/p2p/DHT/RoutingTable.cpp src/p2p/DHT/DHTMessagehandlers.cpp src/p2p/Messenger/Account.cpp src/p2p/Network/RUDP/Connection.cpp src/p2p/Network/RUDP/RUDPMessageHandlers.cpp src/p2p/DHT/DHT.cpp src/p2p/DHT/Searcher.cpp src/p2p/Sheduler.cpp)
 
+add_library(MyStaticLibrary STATIC ${HEADER_FILES} ${SOURCE})
+
 add_executable(p2p_msg ${SOURCE} src/main.cpp)
-target_link_libraries(p2p_msg ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} cryptopp-shared)
+target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT})
