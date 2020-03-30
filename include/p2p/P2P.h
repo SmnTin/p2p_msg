@@ -8,7 +8,6 @@
 #include "p2p/DHT/DHT.h"
 #include "p2p/Sheduler.h"
 #include "p2p/Network/RUDP/Engine.h"
-#include "p2p/Messenger/Account.h"
 
 #include <string>
 #include <iostream>
@@ -75,7 +74,6 @@ namespace p2p {
         std::shared_ptr<DHT::DHT> _dht;
         std::shared_ptr<Sheduler> _sheduler;
 		std::shared_ptr<Network::RUDP::Engine> _rudpEngine;
-		std::shared_ptr<Messenger::Account> _account;
 
 		bool _running = false;
 

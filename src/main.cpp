@@ -112,39 +112,6 @@ int main() {
             };
 
             p2pInstance->getValue(nodeId, key, lambda);
-        } else if(comm == "add") {
-            if(p2pInstance == nullptr)
-                continue;
-
-            std::string key;
-            cin >> key;
-
-            p2pInstance->addFriend(key);
-        } else if(comm == "direct") {
-            p2p::NodeId nodeId;
-            cin >> nodeId;
-            std::string key;
-            cin >> key;
-
-            p2pInstance->directConnection(nodeId, key);
-            p2p::Network::RUDP::Connection::MessageCallback msgCB = [](std::shared_ptr<Packet> packet) {
-                std::cout << "Received \"packet\":\n";
-                for(char c : packet->data())
-                    std::cout << c;
-                std::cout << "\n";
-            };
-            p2pInstance->setRUDPMessageCallback(key, msgCB);
-        } else if(comm == "send") {
-            std::string key;
-            cin >> key;
-            std::string msg;
-            cin >> msg;
-            std::vector<uint8_t> msgData (msg.size());
-            std::copy(msg.begin(), msg.end(), msgData.begin());
-            std::shared_ptr<Packet> packet (new Packet());
-            packet->append(msgData);
-
-            p2pInstance->sendMessage(key, packet);
         }
 //        p2pInstance.sleep(1000);
     }

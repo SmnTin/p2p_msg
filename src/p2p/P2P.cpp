@@ -74,10 +74,6 @@ namespace p2p {
 		_sheduler = std::make_shared<Sheduler>();
 		_dht = std::make_shared<DHT::DHT>(_networkEngine, _sheduler);
 		_rudpEngine = std::make_shared<Network::RUDP::Engine>(_networkEngine, _dht, _sheduler);
-		_account = std::make_shared<Messenger::Account>(_rudpEngine, _dht, _sheduler);
-
-		std::cout << _account->getPublicKeyAsString() << std::endl;
-		std::cout << _account->getPrivateKeyAsString() << std::endl;
 
 		_running = true;
 		_sheduler->run();
@@ -107,40 +103,4 @@ namespace p2p {
 		_dht->getValue(nodeId, key, callback);
 	}
 
-	void P2P::addFriend(const std::string &key) {
-	    _account->addFriend(key);
-	}
-
-	void P2P::removeFriend(const std::string &key) {
-	    _account->removeFriend(key);
-	}
-
-	void P2P::directConnection(const p2p::NodeId &nodeId, const std::string &key) {
-		DHT::NodeSearch::Callback callback = [=](std::shared_ptr<Node> node) {
-			if(node == nullptr)
-				return;
-			auto conn = _rudpEngine->createConnection(node);
-			conn->connect();
-			_account->addFriend(key, conn);
-		};
-
-		_dht->findNode(nodeId, callback);
-	}
-
-	void P2P::setRUDPMessageCallback(const std::string & key,
-			const Network::RUDP::Connection::MessageCallback &callback) {
-		auto ptr = _account->findFriend(key);
-		if(ptr == nullptr)
-			return;
-
-		ptr->getConnection()->setMessageCallback(callback);
-	}
-
-	void P2P::sendMessage(const std::string &key, const std::shared_ptr<p2p::Network::RUDP::Packet> &packet) {
-		auto ptr = _account->findFriend(key);
-		if(ptr == nullptr)
-			return;
-
-		ptr->getConnection()->send(packet);
-	}
 }

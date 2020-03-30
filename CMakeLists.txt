@@ -9,9 +9,12 @@ include_directories (
         "${PROJECT_SOURCE_DIR}/libs"
 )
 
-set(SOURCE src/p2p/NodeId.cpp src/p2p/P2P.cpp src/p2p/p2pAssert.cpp src/p2p/Network/NetworkEngine.cpp src/p2p/DHT/RoutingTable.cpp src/p2p/DHT/DHTMessagehandlers.cpp src/p2p/Messenger/Account.cpp src/p2p/Network/RUDP/Connection.cpp src/p2p/Network/RUDP/RUDPMessageHandlers.cpp src/p2p/DHT/DHT.cpp src/p2p/DHT/Searcher.cpp src/p2p/Sheduler.cpp)
+add_subdirectory(libs)
 
-add_library(MyStaticLibrary STATIC ${HEADER_FILES} ${SOURCE})
+set(SOURCE src/p2p/NodeId.cpp src/p2p/P2P.cpp src/p2p/p2pAssert.cpp src/p2p/Network/NetworkEngine.cpp src/p2p/DHT/RoutingTable.cpp src/p2p/DHT/DHTMessagehandlers.cpp src/p2p/Network/RUDP/Connection.cpp src/p2p/Network/RUDP/RUDPMessageHandlers.cpp src/p2p/DHT/DHT.cpp src/p2p/DHT/Searcher.cpp src/p2p/Sheduler.cpp)
 
-add_executable(p2p_msg ${SOURCE} src/main.cpp)
-target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT})
+add_library(p2p_msg STATIC ${SOURCE})
+target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT} easy-ecc hash-library)
+
+add_executable(p2p_exec ${SOURCE} src/main.cpp)
+target_link_libraries(p2p_exec ${CMAKE_THREAD_LIBS_INIT} p2p_msg)
