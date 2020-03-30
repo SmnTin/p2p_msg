@@ -1,0 +1,6 @@
+[submodule "libs/hash-library"]
+	path = libs/hash-library
+	url = https://github.com/stbrumme/hash-library
+[submodule "libs/easy-ecc"]
+	path = libs/easy-ecc
+	url = https://github.com/esxgx/easy-ecc
