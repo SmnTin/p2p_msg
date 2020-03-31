@@ -4,3 +4,6 @@
 [submodule "libs/hash-library"]
 	path = libs/hash-library
 	url = https://github.com/stbrumme/hash-library
+[submodule "libs/AES"]
+	path = libs/AES
+	url = https://github.com/SergeyBel/AES

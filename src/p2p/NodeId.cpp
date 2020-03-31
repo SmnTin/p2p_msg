@@ -1,6 +1,7 @@
 #include "p2p/NodeId.h"
 
-#include <boost/random/random_device.hpp>
+#include <random>
+#include <cassert>
 #include <cstring>
 
 namespace p2p {
@@ -17,7 +18,7 @@ namespace p2p {
 	}
 
 	NodeId NodeId::random() {
-        boost::random::random_device gen;
+        std::random_device gen;
 	    NodeId res;
         for(std::size_t i = 0; i < sizeInBytes; ++i)
             res[i] = (uint8_t)(gen()%255);
@@ -26,7 +27,6 @@ namespace p2p {
 
 	bool NodeId::bitAt(std::size_t index) const {
 		p2pAssert(index < sizeInBits, "NodeId::bitAt. Index must be less than size");
-
 		const uint8_t& byte = _data.at(index / 8);
 		const std::size_t bitIndex = 7 - index % 8;
 

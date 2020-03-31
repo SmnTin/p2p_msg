@@ -7,7 +7,11 @@
 #include "p2p/p2pException.h"
 
 namespace p2p {
-	void p2pAssert(const bool & condition, const std::string & details);
+#define p2pAssert(expr, details) \
+        static_cast<bool>(expr) ? \
+            void(0) \
+            : \
+            throw_p2p_exception((((std::string)"Assertion failed! ") + #expr + details).c_str());
 }
 
 #endif
