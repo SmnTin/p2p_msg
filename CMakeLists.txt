@@ -61,9 +61,6 @@ target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} easy-
 add_executable(p2p_exec ${SOURCE})
 target_link_libraries(p2p_exec p2p_msg)
 
-add_executable(p2p_test src/test_main.cpp)
-target_link_libraries(p2p_test p2p_msg)
-
 #-----------------------TESTS----------------------------#
 file(GLOB_RECURSE TESTS
         "test/*.h"
