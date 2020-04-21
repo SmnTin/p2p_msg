@@ -20,7 +20,7 @@ namespace p2p {
 	NodeId NodeId::random() {
         std::random_device gen;
 	    NodeId res;
-        for(std::size_t i = 0; i < sizeInBytes; ++i)
+        for (std::size_t i = 0; i < sizeInBytes; ++i)
             res[i] = (uint8_t)(gen()%255);
         return res;
 	}

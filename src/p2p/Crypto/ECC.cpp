@@ -4,6 +4,7 @@
 #include "p2p/Crypto/Hash.h"
 
 #include <cstring>
+#include <thread>
 
 namespace p2p::Crypto::ECC {
     void generateKeys(PublicKey &pubKey, PrivateKey &priKey) {
@@ -18,6 +19,18 @@ namespace p2p::Crypto::ECC {
         memcpy(priKey.data(), o_pri, ECC_BYTES);
     }
 
+    KeyPair generateKeys() {
+        KeyPair keyPair;
+        generateKeys(keyPair.publicKey, keyPair.privateKey);
+        return keyPair;
+    }
+
+    std::future<KeyPair> generateKeysAsync() {
+        return std::async([]() {
+            return generateKeys();
+        });
+    }
+
     void generateSharedKey(const PublicKey &pubKey, const PrivateKey &priKey, SharedKey &sharedKey) {
         uint8_t o_pub[ECC_BYTES + 1];
         uint8_t o_pri[ECC_BYTES];
@@ -29,5 +42,24 @@ namespace p2p::Crypto::ECC {
         ecdh_shared_secret(o_pub, o_pri, o_sha);
         auto hash = Hash::SHA256(o_sha, ECC_BYTES);
         memcpy(sharedKey.data(), hash.data(), ECC_BYTES);
+    }
+
+    SharedKey generateSharedKey(const KeyPair &keyPair) {
+        SharedKey key;
+        generateSharedKey(keyPair.publicKey, keyPair.privateKey, key);
+        return key;
+    }
+
+    std::future<SharedKey> generateSharedKeyAsync(const KeyPair &keyPair) {
+        return std::async([&keyPair]() {
+            return generateSharedKey(keyPair);
+        });
+    }
+
+    NodeId NodeIdFactory::fromPublicKey(const PublicKey &publicKey) {
+        NodeId res;
+        for (std::size_t i = 0; i < NodeId::sizeInBytes; ++i)
+            res[i] = publicKey[i];
+        return res;
     }
 }

@@ -20,6 +20,17 @@ namespace {
         EXPECT_EQ(sh1, sh2);
     }
 
+    TEST(ECC, SharedKeyAsync) {
+        ECC::KeyPair pair1, pair2;
+        pair1 = ECC::generateKeys();
+        pair2 = ECC::generateKeysAsync().get();
+
+        ECC::SharedKey sh1, sh2;
+        sh1 = ECC::generateSharedKey(ECC::KeyPair{pair1.publicKey, pair2.privateKey});
+        sh2 = ECC::generateSharedKeyAsync(ECC::KeyPair{pair2.publicKey, pair1.privateKey}).get();
+        EXPECT_EQ(sh1, sh2);
+    }
+
     TEST(AES, ECB_EncryptDecrypt) {
         ECC::PublicKey pub;
         ECC::PrivateKey pri;
@@ -34,6 +45,33 @@ namespace {
         auto out2 = AES::decryptECB(out, len, sh, len);
         std::string s2(s.length(), ' ');
         memcpy(s2.data(), out2, s.length());
+        EXPECT_EQ(s, s2);
+        delete[] out;
+        delete[] out2;
+    }
+
+    TEST(AES, ECB_EncryptDecryptSafe) {
+        ECC::SharedKey sh1 = ECC::generateSharedKey(ECC::generateKeys());
+
+        AES::SharedKey sh = sh1;
+        std::string s = "fown40eof3nrnf394f39iu4fn3unr0v93u";
+        std::size_t len;
+        auto out = AES::encryptECBSafe(s.data(), s.length(), sh, len);
+        auto out2 = AES::decryptECBSafe(out.get(), len, sh, len);
+        std::string s2(s.length(), ' ');
+        memcpy(s2.data(), out2.get(), s.length());
+        EXPECT_EQ(s, s2);
+    }
+
+    TEST(AES, ECB_EncryptDecryptString) {
+        ECC::SharedKey sh1 = ECC::generateSharedKey(ECC::generateKeys());
+
+        AES::SharedKey sh = sh1;
+        std::string s = "d2u4fh93w4euf3w4fu3i4bf";
+        auto out = AES::encryptECB(s, sh);
+        auto out2 = AES::decryptECB(out, sh);
+        std::string s2(s.size(), ' ');
+        memcpy(s2.data(), out2.data(), s.size());
         EXPECT_EQ(s, s2);
     }
 }
