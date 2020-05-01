@@ -5,21 +5,19 @@
 
 #include <boost/asio.hpp>
 #include <iostream>
+#include <memory>
 
 namespace p2p {
 
     class Node {
     public:
-        Node(const NodeId &id_, const boost::asio::ip::udp::endpoint &address_)
-                : _id(id_), _address(address_) {}
+        Node(const NodeId &id_)
+                : _id(id_) {}
 
         ~Node() = default;
 
         NodeId & id() {
             return _id;
-        }
-        boost::asio::ip::udp::endpoint & address() {
-            return _address;
         }
 
         bool isGood(time_t t) {
@@ -39,12 +37,12 @@ namespace p2p {
 
     private:
         NodeId _id;
-        boost::asio::ip::udp::endpoint _address;
-
         bool _expired = false;
 
         time_t _lastTimeHeard = time(0);
     };
+
+    typedef std::shared_ptr<Node> NodePtr;
 }
 
 #endif //P2P_MSG_NODE_H

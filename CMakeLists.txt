@@ -8,7 +8,7 @@ set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointe
 
 #--------------------LIBRARIES & INCLUDE---------------------#
 find_package(Threads)
-find_package(Boost COMPONENTS system filesystem random REQUIRED)
+find_package(Boost COMPONENTS system thread REQUIRED)
 
 include_directories(
         "${PROJECT_SOURCE_DIR}/include"
@@ -53,7 +53,6 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif ()
 
 #-----------------------SOURCE---------------------------#
-#set(SOURCE src/p2p/NodeId.cpp src/p2p/P2P.cpp src/p2p/Network/NetworkEngine.cpp src/p2p/DHT/RoutingTable.cpp src/p2p/DHT/DHTMessagehandlers.cpp src/p2p/Network/RUDP/Connection.cpp src/p2p/Network/RUDP/RUDPMessageHandlers.cpp src/p2p/DHT/DHT.cpp src/p2p/DHT/Searcher.cpp src/p2p/Sheduler.cpp src/p2p/Crypto/ECC.cpp src/p2p/Crypto/Hash.cpp src/p2p/Crypto/AES.cpp)
 file(GLOB_RECURSE SOURCE
         "src/*.h"
         "src/*.cpp")
