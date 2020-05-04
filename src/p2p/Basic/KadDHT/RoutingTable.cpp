@@ -2,7 +2,7 @@
 
 namespace p2p::Basic::KadDHT {
 
-    RoutingTable::RoutingTable(std::shared_ptr<HostId> hostId) {
+    RoutingTable::RoutingTable(IHostIdPtr hostId) {
         _id = hostId->getId();
     }
 
@@ -84,7 +84,7 @@ namespace p2p::Basic::KadDHT {
         }
 
         //if the bucket is full, we try removing bad nodes
-        if(it->size() == MAX_NODES_IN_KBUCKET) {
+        if(it->size() == maxNodesInKBucket) {
             for(auto iter = it->begin(); iter != it->end();) {
                 if(!(*iter)->isGood(time(0)))
                     (*iter)->setExpired();
@@ -99,7 +99,7 @@ namespace p2p::Basic::KadDHT {
         }
 
         //if the bucket remains full, we try splitting it
-        if(it->size() == MAX_NODES_IN_KBUCKET) {
+        if(it->size() == maxNodesInKBucket) {
             if(!splitBucket(it))
                 return false;
 
@@ -109,7 +109,7 @@ namespace p2p::Basic::KadDHT {
             it = findBucket(node->id());
 
             //bad luck
-            if (it->size() == MAX_NODES_IN_KBUCKET)
+            if (it->size() == maxNodesInKBucket)
                 return false;
         }
 

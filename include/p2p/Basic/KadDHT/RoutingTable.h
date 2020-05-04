@@ -18,7 +18,9 @@ namespace p2p::Basic::KadDHT {
 
     class RoutingTable {
     public:
-        explicit RoutingTable(std::shared_ptr<HostId> hostId);
+        static const size_t maxNodesInKBucket = 20;
+
+        explicit RoutingTable(IHostIdPtr hostId);
 
         ~RoutingTable();
 

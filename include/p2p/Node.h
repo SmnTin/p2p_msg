@@ -21,7 +21,7 @@ namespace p2p {
         }
 
         bool isGood(time_t t) {
-            return t <= _lastTimeHeard + MAX_UNANSWERED_TIME_IN_SECONDS;
+            return t <= _lastTimeHeard + 100;
         }
 
         void setExpired() {

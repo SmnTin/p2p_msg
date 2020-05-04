@@ -6,22 +6,9 @@
 #include <functional>
 
 //just a usual collection
-class NodeRepository {
+class INodeRepository {
 public:
-    struct Iterator
-            : public std::iterator<std::forward_iterator_tag,
-                    NodePtr> {
-        virtual void operator++() = 0;
-        virtual void operator++(int) = 0;
-        virtual NodePtr operator*() = 0;
-        virtual NodePtr operator->() = 0;
-    };
-
-    virtual Iterator begin() = 0;
-    virtual Iterator end() = 0;
-
-    virtual Iterator find(const NodeId &id) = 0;
-    virtual NodePtr findPtr(const NodeId &id) = 0;
+    virtual NodePtr find(const NodeId &id) = 0;
     virtual NodePtr operator[](const NodeId &id) = 0;
 
     virtual bool contains(const NodeId &id) = 0;
@@ -32,5 +19,6 @@ public:
 
     virtual ~NodeRepository() = default;
 };
+typedef std::shared_ptr<INodeRepository> INodeRepositoryPtr;
 
 #endif //P2P_MSG_NODEREPOSITORY_H

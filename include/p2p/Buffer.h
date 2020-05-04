@@ -4,15 +4,10 @@
 #include <stdint.h>
 #include <vector>
 #include <array>
-
-#include "p2p/config.h"
+#include <string>
 
 namespace p2p {
 
-	typedef std::vector<uint8_t> Buffer;
-
-	namespace Network {
-		typedef std::array<uint8_t, MAX_UDP_PACKET_SIZE_BYTES> MessageBuffer;
-	}
+	typedef std::string Buffer;
 }
 #endif

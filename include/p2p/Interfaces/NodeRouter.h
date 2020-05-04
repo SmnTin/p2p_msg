@@ -5,13 +5,14 @@
 #include <memory>
 #include <functional>
 
-class NodeRouter {
+class INodeRouter {
 public:
     typedef std::function<void(NodePtr)> LocateNodeCallback;
 
     virtual void locateNode(const NodeId &id, const LocateNodeCallback &callback) = 0;
 
-    virtual ~NodeRouter() = default;
+    virtual ~INodeRouter() = default;
 };
+typedef std::shared_ptr<INodeRouter> INodeRouterPtr;
 
 #endif //P2P_MSG_PEERROUTER_H

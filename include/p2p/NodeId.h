@@ -1,7 +1,6 @@
 #ifndef P2P_NODEID_H
 #define P2P_NODEID_H
 
-#include "p2p/config.h"
 #include "p2p/platform.h"
 
 #include "p2p/p2pAssert.h"
@@ -14,8 +13,8 @@ namespace p2p {
 
 	class NodeId {
 	public:
-		static constexpr std::size_t sizeInBytes = NODE_ID_SIZE_BYTES;
-		static constexpr std::size_t sizeInBits = NODE_ID_SIZE_BITS;
+		static constexpr std::size_t sizeInBytes = 32;
+		static constexpr std::size_t sizeInBits = sizeInBytes * 8;
 
 		NodeId();
 //		NodeId(NodeId & nodeId);
@@ -50,7 +49,7 @@ namespace p2p {
 		friend std::istream & operator>> (std::istream & in, NodeId & nodeId);
 
 	private:
-		std::array<uint8_t, NODE_ID_SIZE_BYTES> _data;
+		std::array<uint8_t, sizeInBytes> _data;
 	};
 }
 
@@ -59,10 +58,13 @@ namespace std {
 	{
 		size_t operator()(const p2p::NodeId & nodeId) const
 		{
+		    static const int base = 123;
+		    static const int mod = 1e9 + 7;
 			size_t res = 0;
 			for(int i = 0; i < p2p::NodeId::sizeInBytes; ++i) {
-				res *= NODE_ID_HASH_BASE;
+				res *= base;
 				res += nodeId[i];
+				res %= mod;
 			}
 
 			return res;

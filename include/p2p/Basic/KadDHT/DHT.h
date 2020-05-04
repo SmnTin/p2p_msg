@@ -4,7 +4,7 @@
 #include "p2p/Interfaces/NodeRouter.h"
 #include "p2p/Interfaces/NodeRepository.h"
 
-class DHT : public NodeRouter {
+class DHT : public INodeRouter {
 public:
 
 };
