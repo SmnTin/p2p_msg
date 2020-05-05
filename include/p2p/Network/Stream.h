@@ -2,7 +2,6 @@
 #define P2P_MSG_STREAM_H
 
 #include <memory>
-#include <vector>
 
 #include "p2p/Buffer.h"
 #include "p2p/Common/Subscription.h"
@@ -10,7 +9,7 @@
 namespace p2p::Network {
     class IStream;
 
-    //use only these classes to own methods of IStream
+    //use only these classes to own instances of IStream
     typedef std::shared_ptr<IStream> IStreamPtr;
     typedef std::weak_ptr<IStream> IStreamWPtr;
 
@@ -32,11 +31,7 @@ namespace p2p::Network {
         //true if closure was successful regardless the invocation side
         virtual bool closed() const = 0;
         virtual bool needsToBeClosed() const = 0;
-
-        typedef std::function<void(Buffer)> MessageCallback;
-
-        [[nodiscard]]
-        virtual Subscription subscribe(MessageCallback callback) = 0;
+        virtual void setClosureNecessity(bool flag) = 0;
 
         virtual void receive(Buffer buf) = 0;
         virtual void send(Buffer buf) = 0;

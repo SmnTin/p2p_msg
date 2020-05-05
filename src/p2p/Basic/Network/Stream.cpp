@@ -3,28 +3,34 @@
 namespace p2p::Basic::Network {
     using namespace p2p::Network;
 
-    Stream::Stream() {
+    template<class MPolicy>
+    Stream<MPolicy>::Stream() {
         //opened by default in case there are no slave handshake
         _opened = true;
     }
 
-    void Stream::append(IStreamPtr child) {
+    template<class MPolicy>
+    void Stream<MPolicy>::append(IStreamPtr child) {
         child->setParent(shared_from_this());
         _children.emplace_back(std::move(child));
     }
 
-    void Stream::setParent(IStreamPtr parent) {
+    template<class MPolicy>
+    void Stream<MPolicy>::setParent(IStreamPtr parent) {
         _parent = IStreamWPtr(parent);
+
     }
 
     //just passes it further
-    void Stream::performHandshake() {
+    template<class MPolicy>
+    void Stream<MPolicy>::performHandshake() {
         for (auto &child : _children)
             child->performHandshake();
     }
 
     //just passes it further
-    void Stream::performClosure() {
+    template<class MPolicy>
+    void Stream<MPolicy>::performClosure() {
         size_t unclosedCnt = 0;
         for (auto &child : _children)
             if (child->opened() && child->needsToBeClosed() && !child->closed())
@@ -37,30 +43,74 @@ namespace p2p::Basic::Network {
         }
     }
 
-    bool Stream::opened() const {
+    template<class MPolicy>
+    bool Stream<MPolicy>::opened() const {
         return _opened;
     }
 
-    bool Stream::closed() const {
+    template<class MPolicy>
+    bool Stream<MPolicy>::closed() const {
         return _closed;
     }
 
-    bool Stream::needsToBeClosed() const {
-        return false;
+    template<class MPolicy>
+    bool Stream<MPolicy>::needsToBeClosed() const {
+        bool ans = _needsToBeClosed;
+        for (auto &child : _children)
+            ans = (ans || child->needsToBeClosed());
+
+        return ans;
     }
 
-    Subscription Stream::subscribe(MessageCallback callback) {
-        return _publisher.subscribe(callback);
+    template<class MPolicy>
+    void Stream<MPolicy>::setClosureNecessity(bool flag) {
+        _needsToBeClosed = flag;
     }
 
-    void Stream::receive(Buffer msg) {
-        _publisher.publish(msg);
+    template<class MPolicy>
+    void Stream<MPolicy>::send(Buffer msg) {
+        if (!_parent.expired())
+            _parent.lock()->send(msg);
+    }
+
+    template<class MPolicy>
+    void Stream<MPolicy>::receive(Buffer msg) {
+        MPolicy::spreadMessage(msg);
         for (auto &child : _children)
             child->receive(msg);
     }
 
-    void Stream::send(Buffer msg) {
-        if (!_parent.expired())
-            _parent.lock()->send(msg);
+    void Messaging::NoPolicy::spreadMessage
+            (Buffer msg) {}
+
+    void Messaging::SubscriptionPolicy::spreadMessage
+            (Buffer msg) {
+        _publisher.publish(msg);
     }
+
+    void Messaging::QueuePolicy::spreadMessage
+            (Buffer msg) {
+        _msgQueue.push(msg);
+    }
+
+    Subscription Messaging::SubscriptionPolicy::subscribe
+            (MessageCallback callback) {
+        return _publisher.subscribe(callback);
+    }
+
+    bool Messaging::QueuePolicy::available() const {
+        return !_msgQueue.empty();
+    }
+
+    Buffer Messaging::QueuePolicy::read() {
+        if (!available())
+            throw std::runtime_error("No messages are in the queue!");
+        auto msg = _msgQueue.front();
+        _msgQueue.pop();
+        return msg;
+    }
+
+    template class Stream<Messaging::NoPolicy>;
+    template class Stream<Messaging::SubscriptionPolicy>;
+    template class Stream<Messaging::QueuePolicy>;
 }
