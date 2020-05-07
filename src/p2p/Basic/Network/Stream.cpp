@@ -2,6 +2,7 @@
 
 namespace p2p::Basic::Network {
     using namespace p2p::Network;
+    using namespace p2p;
 
     template<class MPolicy>
     Stream<MPolicy>::Stream() {
@@ -99,6 +100,22 @@ namespace p2p::Basic::Network {
         MPolicy::spreadMessage(msg);
         for (auto &child : _children)
             child->receive(msg);
+    }
+
+    template<class MPolicy>
+    NodeId Stream<MPolicy>::getNodeId() const {
+        if (!_nodeId.has_value())
+            if (auto parent = _parent.lock())
+                return parent->getNodeId();
+        return _nodeId.value();
+    }
+
+    template<class MPolicy>
+    NodeId Stream<MPolicy>::getNodeId() {
+        if (!_nodeId.has_value())
+            if (auto parent = _parent.lock())
+                _nodeId = parent->getNodeId();
+        return _nodeId.value();
     }
 
     void Messaging::NoPolicy::spreadMessage

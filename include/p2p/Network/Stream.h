@@ -5,6 +5,7 @@
 
 #include "p2p/Buffer.h"
 #include "p2p/Common/Subscription.h"
+#include "p2p/NodeId.h"
 
 namespace p2p::Network {
     class IStream;
@@ -46,6 +47,11 @@ namespace p2p::Network {
 
         virtual void receive(Buffer buf) = 0;
         virtual void send(Buffer buf) = 0;
+
+        //must be set once at tree creation
+        virtual NodeId getNodeId() const = 0;
+        //and lazily propagated through the tree
+        virtual NodeId getNodeId() = 0;
 
         virtual ~IStream() = default;
 

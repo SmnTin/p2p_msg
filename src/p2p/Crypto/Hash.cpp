@@ -1,5 +1,5 @@
 #include "p2p/Crypto/Hash.h"
-#include "hash-library/sha256.h"
+#include "hash-lib/sha256.h"
 
 namespace p2p::Crypto::Hash {
     std::string SHA256(const std::string &data) {

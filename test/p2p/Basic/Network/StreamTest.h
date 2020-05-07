@@ -22,6 +22,8 @@ namespace {
         MOCK_METHOD(void, recalcClosureNecessity, (), (override));
         MOCK_METHOD(void, send, (Buffer), (override));
         MOCK_METHOD(void, receive, (Buffer), (override));
+        MOCK_METHOD(NodeId, getNodeId, (), (override));
+        MOCK_METHOD(NodeId, getNodeId, (), (const, override));
     };
 
     TEST(BasicStream, Creation) {
@@ -244,6 +246,36 @@ namespace {
         EXPECT_TRUE(stream4->closed());
         EXPECT_TRUE(stream5->closed());
         EXPECT_TRUE(stream6->closed());
+    }
+
+    class StreamWithNodeId : public Stream<> {
+    public:
+        explicit StreamWithNodeId(NodeId id = NodeId::zeros()) {
+            _nodeId = id;
+        }
+    };
+
+    TEST(BasicStream, getNodeId) {
+        NodeId id = NodeId::random();
+        auto stream1 = std::make_shared<StreamWithNodeId>(id);
+        auto stream2 = std::make_shared<Stream<>>();
+        auto stream3 = std::make_shared<Stream<>>();
+        auto stream4 = std::make_shared<Stream<>>();
+        auto stream5 = std::make_shared<Stream<>>();
+        auto stream6 = std::make_shared<Stream<>>();
+
+        stream1->append(stream2);
+        stream1->append(stream3);
+        stream2->append(stream4);
+        stream3->append(stream5);
+        stream3->append(stream6);
+
+        EXPECT_EQ(stream3->getNodeId(), id);
+        EXPECT_EQ(stream4->getNodeId(), id);
+        EXPECT_EQ(stream5->getNodeId(), id);
+        EXPECT_EQ(stream6->getNodeId(), id);
+        EXPECT_EQ(stream2->getNodeId(), id);
+        EXPECT_EQ(stream1->getNodeId(), id);
     }
 }
 

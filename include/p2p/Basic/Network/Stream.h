@@ -72,10 +72,14 @@ namespace p2p::Basic::Network {
         virtual void setClosureNecessity(bool flag);
 
         void send(Buffer msg) override;
-
         void receive(Buffer msg) override;
 
+        NodeId getNodeId() const override;
+        NodeId getNodeId() override;
+
     protected:
+        std::optional<NodeId> _nodeId;
+
         IStreamWPtr _parent;
         std::vector<IStreamPtr> _children;
 

@@ -1,6 +1,6 @@
 add_library(easy-ecc STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/easy-ecc/ecc.c)
-add_library(hash-lib STATIC
+add_library(hash-library STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/hash-lib/digest.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/hash-lib/keccak.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/hash-lib/md5.cpp
