@@ -4,13 +4,18 @@
 namespace p2p::Basic::Network {
     class Extension {
     public:
-        virtual void append(IExtensionPtr child) {
+        void append(IExtensionPtr child) override {
             child->setParent(shared_from_this());
             _children.emplace_back(std::move(child));
         }
 
-        virtual void setParent(IExtensionPtr parent) {
-            _parent = IExtensionWPtr(std::move(parent));
+        void setParent(IExtensionPtr parent) override {
+            _parent = IExtensionWPtr(parent);
+        }
+
+        void extendStream(IStreamPtr stream) override {
+            for (auto &child : _children)
+                child->extendStream(stream);
         }
 
     private:

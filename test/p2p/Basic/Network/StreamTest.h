@@ -9,22 +9,19 @@
 namespace {
     using namespace p2p::Basic::Network;
 
-    class MockStream : public IStream {
+    class StreamMock : public IStream {
     public:
-        MOCK_METHOD(void, append, (IStreamPtr
-                child), (override));
-        MOCK_METHOD(void, setParent, (IStreamPtr
-                parent), (override));
+        MOCK_METHOD(void, append, (IStreamPtr), (override));
+        MOCK_METHOD(void, setParent, (IStreamPtr), (override));
         MOCK_METHOD(void, performHandshake, (), (override));
         MOCK_METHOD(void, performClosure, (), (override));
         MOCK_METHOD(bool, opened, (), (const, override));
         MOCK_METHOD(bool, closed, (), (const, override));
-        MOCK_METHOD(bool, needsToBeClosed, (), (const, override));
-        MOCK_METHOD(void, setClosureNecessity, (bool flag), (override));
-        MOCK_METHOD(void, send, (Buffer
-                msg), (override));
-        MOCK_METHOD(void, receive, (Buffer
-                msg), (override));
+        MOCK_METHOD(void, close, (IStreamPtr), (override));
+        MOCK_METHOD(bool, subtreeNeedsToBeClosed, (), (const, override));
+        MOCK_METHOD(void, recalcClosureNecessity, (), (override));
+        MOCK_METHOD(void, send, (Buffer), (override));
+        MOCK_METHOD(void, receive, (Buffer), (override));
     };
 
     TEST(BasicStream, Creation) {
@@ -92,8 +89,8 @@ namespace {
 
     TEST(BasicStream, Receive) {
         auto stream1 = std::make_shared<Stream<>>();
-        auto stream2 = std::make_shared<testing::NiceMock<MockStream>>();
-        auto stream3 = std::make_shared<testing::NiceMock<MockStream>>();
+        auto stream2 = std::make_shared<testing::NiceMock<StreamMock>>();
+        auto stream3 = std::make_shared<testing::NiceMock<StreamMock>>();
         stream1->append(stream2);
         stream1->append(stream3);
 
@@ -109,7 +106,7 @@ namespace {
     TEST(BasicStream, Send) {
         Buffer buf = "hello";
 
-        auto mock = std::make_shared<testing::NiceMock<MockStream>>();
+        auto mock = std::make_shared<testing::NiceMock<StreamMock>>();
         EXPECT_CALL(*mock, send(buf))
                 .Times(2);
 
@@ -131,8 +128,8 @@ namespace {
         auto stream1 = std::make_shared<Stream<>>();
         auto stream2 = std::make_shared<Stream<>>();
         auto stream3 = std::make_shared<Stream<>>();
-        auto stream4 = std::make_shared<testing::NiceMock<MockStream>>();
-        auto stream5 = std::make_shared<testing::NiceMock<MockStream>>();
+        auto stream4 = std::make_shared<testing::NiceMock<StreamMock>>();
+        auto stream5 = std::make_shared<testing::NiceMock<StreamMock>>();
 
         stream1->append(stream2);
         stream1->append(stream3);
@@ -158,7 +155,7 @@ namespace {
     }
 
     TEST(BasicStream, performClosure) {
-        auto stream1 = std::make_shared<testing::NiceMock<MockStream>>();
+        auto stream1 = std::make_shared<testing::NiceMock<StreamMock>>();
         auto stream2 = std::make_shared<Stream<>>();
         auto stream3 = std::make_shared<Stream<>>();
         auto stream4 = std::make_shared<Stream<>>();
@@ -214,13 +211,39 @@ namespace {
         stream3->append(stream6);
         stream6->setClosureNecessity(true);
 
-        EXPECT_TRUE(stream1->needsToBeClosed());
-        EXPECT_FALSE(stream2->needsToBeClosed());
-        EXPECT_TRUE(stream3->needsToBeClosed());
-        EXPECT_FALSE(stream4->needsToBeClosed());
-        EXPECT_FALSE(stream5->needsToBeClosed());
-        EXPECT_TRUE(stream6->needsToBeClosed());
+        EXPECT_TRUE(stream1->subtreeNeedsToBeClosed());
+        EXPECT_FALSE(stream2->subtreeNeedsToBeClosed());
+        EXPECT_TRUE(stream3->subtreeNeedsToBeClosed());
+        EXPECT_FALSE(stream4->subtreeNeedsToBeClosed());
+        EXPECT_FALSE(stream5->subtreeNeedsToBeClosed());
+        EXPECT_TRUE(stream6->subtreeNeedsToBeClosed());
+    }
 
+    TEST(BasicStream, close) {
+        auto stream1 = std::make_shared<Stream<>>();
+        auto stream2 = std::make_shared<Stream<>>();
+        auto stream3 = std::make_shared<Stream<>>();
+        auto stream4 = std::make_shared<Stream<>>();
+        auto stream5 = std::make_shared<Stream<>>();
+        auto stream6 = std::make_shared<Stream<>>();
+
+        stream1->append(stream2);
+        stream1->append(stream3);
+        stream2->append(stream4);
+        stream3->append(stream5);
+        stream3->append(stream6);
+        stream4->setClosureNecessity(true);
+        stream5->setClosureNecessity(true);
+        stream6->setClosureNecessity(true);
+
+        stream2->close(nullptr);
+
+        EXPECT_TRUE(stream1->closed());
+        EXPECT_TRUE(stream2->closed());
+        EXPECT_TRUE(stream3->closed());
+        EXPECT_TRUE(stream4->closed());
+        EXPECT_TRUE(stream5->closed());
+        EXPECT_TRUE(stream6->closed());
     }
 }
 

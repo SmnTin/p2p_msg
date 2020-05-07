@@ -65,9 +65,11 @@ namespace p2p::Basic::Network {
 
         bool closed() const override;
 
+        void close(IStreamPtr prev) override;
         //true if all the children don't need to be closed
-        bool needsToBeClosed() const override;
-        void setClosureNecessity(bool flag) override;
+        bool subtreeNeedsToBeClosed() const override;
+        void recalcClosureNecessity() override;
+        virtual void setClosureNecessity(bool flag);
 
         void send(Buffer msg) override;
 
@@ -80,6 +82,7 @@ namespace p2p::Basic::Network {
         bool _opened = false;
         bool _closed = false;
         bool _needsToBeClosed = false;
+        bool _subtreeNeedsToBeClosed = false;
     };
 }
 

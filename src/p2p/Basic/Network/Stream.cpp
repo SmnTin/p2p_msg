@@ -13,12 +13,12 @@ namespace p2p::Basic::Network {
     void Stream<MPolicy>::append(IStreamPtr child) {
         child->setParent(shared_from_this());
         _children.emplace_back(std::move(child));
+        recalcClosureNecessity();
     }
 
     template<class MPolicy>
     void Stream<MPolicy>::setParent(IStreamPtr parent) {
         _parent = IStreamWPtr(parent);
-
     }
 
     //just passes it further
@@ -33,7 +33,7 @@ namespace p2p::Basic::Network {
     void Stream<MPolicy>::performClosure() {
         size_t unclosedCnt = 0;
         for (auto &child : _children)
-            if (child->opened() && child->needsToBeClosed() && !child->closed())
+            if (child->opened() && child->subtreeNeedsToBeClosed() && !child->closed())
                 unclosedCnt++;
         if (unclosedCnt == 0) {
             //actually close
@@ -54,17 +54,38 @@ namespace p2p::Basic::Network {
     }
 
     template<class MPolicy>
-    bool Stream<MPolicy>::needsToBeClosed() const {
+    void Stream<MPolicy>::close(IStreamPtr prev) {
+        if (auto parent = _parent.lock())
+            if (parent != prev)
+                parent->close(shared_from_this());
+        for (auto &child : _children)
+            if (child != prev)
+                child->close(shared_from_this());
+        //this node is a leaf and must initiate the closure
+        if (_children.empty())
+            performClosure();
+    }
+
+    template<class MPolicy>
+    bool Stream<MPolicy>::subtreeNeedsToBeClosed() const {
+        return _subtreeNeedsToBeClosed;
+    }
+
+    template<typename MPolicy>
+    void Stream<MPolicy>::recalcClosureNecessity() {
         bool ans = _needsToBeClosed;
         for (auto &child : _children)
-            ans = (ans || child->needsToBeClosed());
-
-        return ans;
+            ans = (ans || child->subtreeNeedsToBeClosed());
+        _subtreeNeedsToBeClosed = ans;
+        if (auto parent = _parent.lock())
+            if (parent->subtreeNeedsToBeClosed() != ans) //gives amortized O(1)
+                parent->recalcClosureNecessity();
     }
 
     template<class MPolicy>
     void Stream<MPolicy>::setClosureNecessity(bool flag) {
         _needsToBeClosed = flag;
+        recalcClosureNecessity();
     }
 
     template<class MPolicy>
