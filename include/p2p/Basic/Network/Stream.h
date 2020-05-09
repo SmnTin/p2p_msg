@@ -77,8 +77,16 @@ namespace p2p::Basic::Network {
         NodeId getNodeId() const override;
         NodeId getNodeId() override;
 
+        TransportTraits getTraits() const override;
+        TransportTraits getTraits() override;
+
+        Endpoint getEndpoint() const override;
+        Endpoint getEndpoint() override;
+
     protected:
         std::optional<NodeId> _nodeId;
+        std::optional<TransportTraits> _transportTraits;
+        std::optional<Endpoint> _endpoint;
 
         IStreamWPtr _parent;
         std::vector<IStreamPtr> _children;

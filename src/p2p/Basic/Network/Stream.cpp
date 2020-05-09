@@ -118,6 +118,38 @@ namespace p2p::Basic::Network {
         return _nodeId.value();
     }
 
+    template<class MPolicy>
+    Endpoint Stream<MPolicy>::getEndpoint() const {
+        if (!_endpoint.has_value())
+            if (auto parent = _parent.lock())
+                return parent->getEndpoint();
+        return _endpoint.value();
+    }
+
+    template<class MPolicy>
+    Endpoint Stream<MPolicy>::getEndpoint() {
+        if (!_endpoint.has_value())
+            if (auto parent = _parent.lock())
+                _endpoint = parent->getEndpoint();
+        return _endpoint.value();
+    }
+
+    template<class MPolicy>
+    TransportTraits Stream<MPolicy>::getTraits() const {
+        if (!_transportTraits.has_value())
+            if (auto parent = _parent.lock())
+                return parent->getTraits();
+        return _transportTraits.value();
+    }
+
+    template<class MPolicy>
+    TransportTraits Stream<MPolicy>::getTraits() {
+        if (!_transportTraits.has_value())
+            if (auto parent = _parent.lock())
+                _transportTraits = parent->getTraits();
+        return _transportTraits.value();
+    }
+
     void Messaging::NoPolicy::spreadMessage
             (Buffer msg) {}
 

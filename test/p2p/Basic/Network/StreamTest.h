@@ -1,30 +1,11 @@
 #ifndef P2P_MSG_STREAMTEST_H
 #define P2P_MSG_STREAMTEST_H
 
-#include "gtest/gtest.h"
-#include "gmock/gmock.h"
-
-#include "p2p/Basic/Network/Stream.h"
+#include "p2p/Basic/Network/StreamMock.h"
+#include "p2p/Basic/Network/ArmedStream.h"
 
 namespace {
     using namespace p2p::Basic::Network;
-
-    class StreamMock : public IStream {
-    public:
-        MOCK_METHOD(void, append, (IStreamPtr), (override));
-        MOCK_METHOD(void, setParent, (IStreamPtr), (override));
-        MOCK_METHOD(void, performHandshake, (), (override));
-        MOCK_METHOD(void, performClosure, (), (override));
-        MOCK_METHOD(bool, opened, (), (const, override));
-        MOCK_METHOD(bool, closed, (), (const, override));
-        MOCK_METHOD(void, close, (IStreamPtr), (override));
-        MOCK_METHOD(bool, subtreeNeedsToBeClosed, (), (const, override));
-        MOCK_METHOD(void, recalcClosureNecessity, (), (override));
-        MOCK_METHOD(void, send, (Buffer), (override));
-        MOCK_METHOD(void, receive, (Buffer), (override));
-        MOCK_METHOD(NodeId, getNodeId, (), (override));
-        MOCK_METHOD(NodeId, getNodeId, (), (const, override));
-    };
 
     TEST(BasicStream, Creation) {
         EXPECT_NO_THROW(std::make_shared<Stream<Messaging::NoPolicy>>());
@@ -248,16 +229,11 @@ namespace {
         EXPECT_TRUE(stream6->closed());
     }
 
-    class StreamWithNodeId : public Stream<> {
-    public:
-        explicit StreamWithNodeId(NodeId id = NodeId::zeros()) {
-            _nodeId = id;
-        }
-    };
-
-    TEST(BasicStream, getNodeId) {
+    TEST(BasicStream, getNodeId_getEndpoint_getTraits) {
         NodeId id = NodeId::random();
-        auto stream1 = std::make_shared<StreamWithNodeId>(id);
+        TransportTraits traits("abc", true, false, true);
+        Endpoint endp{"abc", "bcd"};
+        auto stream1 = std::make_shared<ArmedStream>(id, traits, endp);
         auto stream2 = std::make_shared<Stream<>>();
         auto stream3 = std::make_shared<Stream<>>();
         auto stream4 = std::make_shared<Stream<>>();
@@ -276,6 +252,20 @@ namespace {
         EXPECT_EQ(stream6->getNodeId(), id);
         EXPECT_EQ(stream2->getNodeId(), id);
         EXPECT_EQ(stream1->getNodeId(), id);
+
+        EXPECT_EQ(stream3->getTraits(), traits);
+        EXPECT_EQ(stream4->getTraits(), traits);
+        EXPECT_EQ(stream5->getTraits(), traits);
+        EXPECT_EQ(stream6->getTraits(), traits);
+        EXPECT_EQ(stream2->getTraits(), traits);
+        EXPECT_EQ(stream1->getTraits(), traits);
+
+        EXPECT_EQ(stream3->getEndpoint(), endp);
+        EXPECT_EQ(stream4->getEndpoint(), endp);
+        EXPECT_EQ(stream5->getEndpoint(), endp);
+        EXPECT_EQ(stream6->getEndpoint(), endp);
+        EXPECT_EQ(stream2->getEndpoint(), endp);
+        EXPECT_EQ(stream1->getEndpoint(), endp);
     }
 }
 

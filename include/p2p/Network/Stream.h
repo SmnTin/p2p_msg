@@ -6,6 +6,7 @@
 #include "p2p/Buffer.h"
 #include "p2p/Common/Subscription.h"
 #include "p2p/NodeId.h"
+#include "p2p/Network/Endpoint.h"
 
 namespace p2p::Network {
     class IStream;
@@ -52,6 +53,12 @@ namespace p2p::Network {
         virtual NodeId getNodeId() const = 0;
         //and lazily propagated through the tree
         virtual NodeId getNodeId() = 0;
+
+        virtual TransportTraits getTraits() const = 0;
+        virtual TransportTraits getTraits() = 0;
+
+        virtual Endpoint getEndpoint() const = 0;
+        virtual Endpoint getEndpoint() = 0;
 
         virtual ~IStream() = default;
 

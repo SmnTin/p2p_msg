@@ -2,6 +2,7 @@
 #include "p2p/Crypto/CryptoTest.h"
 #include "p2p/Common/diTest.h"
 #include "p2p/Basic/Network/StreamTest.h"
+#include "p2p/Network/AnySelectorTest.h"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
