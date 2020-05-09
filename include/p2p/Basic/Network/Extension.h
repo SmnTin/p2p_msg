@@ -1,8 +1,12 @@
 #ifndef P2P_MSG_BASIC_EXTENSION_H
 #define P2P_MSG_BASIC_EXTENSION_H
 
+#include "p2p/Network/Extension.h"
+
 namespace p2p::Basic::Network {
-    class Extension {
+    using namespace p2p::Network;
+
+    class Extension : public IExtension {
     public:
         void append(IExtensionPtr child) override {
             child->setParent(shared_from_this());

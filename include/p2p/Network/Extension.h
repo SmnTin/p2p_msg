@@ -4,7 +4,6 @@
 #include "p2p/Network/Stream.h"
 
 namespace p2p::Network {
-
     class IExtension;
 
     typedef std::shared_ptr<IExtension> IExtensionPtr;
