@@ -54,12 +54,15 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif ()
 
 #-----------------------SOURCE---------------------------#
+file(GLOB_RECURSE HEADERS
+        "include/*.h")
+
 file(GLOB_RECURSE SOURCE
         "src/*.h"
         "src/*.cpp")
 
 #-----------------------TARGETS--------------------------#
-add_library(p2p_msg STATIC ${SOURCE})
+add_library(p2p_msg STATIC ${HEADERS} ${SOURCE})
 target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} easy-ecc hash-library aes-library)
 
 add_executable(p2p_exec ${SOURCE})

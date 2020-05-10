@@ -5,25 +5,27 @@
 #include "p2p/Crypto/ECC.h"
 
 namespace p2p::Basic {
-    class HostKeyPair : public HostId {
+    class HostKeyPair : public IHostId {
     public:
         HostKeyPair() {
-            _keys = ECC::generateKeys();
-            _id = ECC::NodeIdFactory::fromPublicKey(_keys.publicKey);
+            _keys = Crypto::ECC::generateKeys();
+            _id = Crypto::ECC::NodeIdFactory::fromPublicKey(_keys.publicKey);
         }
 
-        ECC::KeyPair getKeys() {
+        Crypto::ECC::KeyPair getKeys() {
             return _keys;
         }
 
-        NodeId getId() override {
+        NodeId getId() const override {
             return _id;
         }
 
     private:
-        ECC::KeyPair _keys;
+        Crypto::ECC::KeyPair _keys;
         NodeId _id;
     };
+
+    typedef std::shared_ptr<HostKeyPair> HostKeyPairPtr;
 }
 
 #endif //P2P_MSG_HOSTID_H

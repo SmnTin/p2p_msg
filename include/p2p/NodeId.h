@@ -15,6 +15,7 @@ namespace p2p {
 	public:
 		static constexpr std::size_t sizeInBytes = 32;
 		static constexpr std::size_t sizeInBits = sizeInBytes * 8;
+		typedef std::array<uint8_t, sizeInBytes> Data;
 
 		NodeId();
 //		NodeId(NodeId & nodeId);
@@ -30,6 +31,7 @@ namespace p2p {
 
 		uint8_t operator[](std::size_t index) const;
 		uint8_t& operator[](std::size_t index);
+		Data data() const;
 
 		bool operator==(const NodeId&) const;
 		bool operator!=(const NodeId&) const;
@@ -49,7 +51,7 @@ namespace p2p {
 		friend std::istream & operator>> (std::istream & in, NodeId & nodeId);
 
 	private:
-		std::array<uint8_t, sizeInBytes> _data;
+	    Data _data;
 	};
 }
 

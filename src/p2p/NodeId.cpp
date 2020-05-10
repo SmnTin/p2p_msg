@@ -69,6 +69,10 @@ namespace p2p {
 		return _data.at(index);
 	}
 
+	NodeId::Data NodeId::data() const {
+	    return _data;
+	}
+
 	bool NodeId::operator==(const NodeId & other) const {
 		return _data == other._data;
 	}

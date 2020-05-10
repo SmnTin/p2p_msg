@@ -22,7 +22,7 @@ namespace p2p::Basic::Network {
                 child->extendStream(stream);
         }
 
-    private:
+    protected:
         IExtensionWPtr _parent;
         std::vector<IExtensionPtr> _children;
     };
