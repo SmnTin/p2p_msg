@@ -15,7 +15,7 @@ namespace p2p::Network {
         }
 
         void extend(IExtensionPtr extension) {
-            _rootExtension->append(std::move(extension));
+            _rootExtension->setChild(std::move(extension));
         }
 
         const TransportSelector &select() {

@@ -21,7 +21,7 @@ namespace p2p::Network {
 
     class TransportTraits {
     public:
-        TransportTraits(Buffer name, bool reliable,
+        TransportTraits(std::string name, bool reliable,
                         bool fast, bool energyEfficient) {
             _name = std::move(name);
             _isReliable = reliable;
@@ -29,7 +29,7 @@ namespace p2p::Network {
             _isEnergyEfficient = energyEfficient;
         }
 
-        [[nodiscard]] Buffer getName() const {
+        [[nodiscard]] std::string getName() const {
             return _name;
         }
 

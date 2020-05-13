@@ -21,8 +21,8 @@ namespace p2p::Basic::Network {
 
         void receive(Buffer msg) override {
             auto decrypted = Crypto::AES::decryptECB(msg, _sharedKey);
-            for (auto &child : _children)
-                child->receive(decrypted);
+            if (_child)
+                _child->receive(decrypted);
         }
 
         void send(Buffer msg) override {
@@ -44,9 +44,9 @@ namespace p2p::Basic::Network {
         void extendStream(IStreamPtr stream) override {
             IStreamPtr extended =
                     std::make_shared<ECCStream>(_hostPrivateKey);
-            extended->append(stream);
-            for (auto &child : _children)
-                child->extendStream(extended);
+            extended->setChild(stream);
+            if (_child)
+                _child->extendStream(extended);
         }
 
     private:

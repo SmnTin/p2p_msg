@@ -11,10 +11,17 @@ namespace p2p::Basic::Network {
     }
 
     template<class MPolicy>
-    void Stream<MPolicy>::append(IStreamPtr child) {
-        child->setParent(shared_from_this());
-        _children.emplace_back(std::move(child));
-        recalcClosureNecessity();
+    void Stream<MPolicy>::setChild(IStreamPtr child) {
+        if (_child)
+            _child->setParent(nullptr);
+        if (child)
+            child->setParent(shared_from_this());
+        _child = (std::move(child));
+    }
+
+    template<class MPolicy>
+    void Stream<MPolicy>::setChild(std::nullptr_t child) {
+        setChild(IStreamPtr(child));
     }
 
     template<class MPolicy>
@@ -22,20 +29,24 @@ namespace p2p::Basic::Network {
         _parent = IStreamWPtr(parent);
     }
 
+    template<class MPolicy>
+    void Stream<MPolicy>::setParent(std::nullptr_t parent) {
+        _parent = IStreamWPtr();
+    }
+
     //just passes it further
     template<class MPolicy>
     void Stream<MPolicy>::performHandshake() {
-        for (auto &child : _children)
-            child->performHandshake();
+        if (_child)
+            _child->performHandshake();
     }
 
     //just passes it further
     template<class MPolicy>
     void Stream<MPolicy>::performClosure() {
         size_t unclosedCnt = 0;
-        for (auto &child : _children)
-            if (child->opened() && child->subtreeNeedsToBeClosed() && !child->closed())
-                unclosedCnt++;
+        if (_child && _child->opened() && !_child->closed())
+            unclosedCnt++;
         if (unclosedCnt == 0) {
             //actually close
             _closed = true;
@@ -59,34 +70,11 @@ namespace p2p::Basic::Network {
         if (auto parent = _parent.lock())
             if (parent != prev)
                 parent->close(shared_from_this());
-        for (auto &child : _children)
-            if (child != prev)
-                child->close(shared_from_this());
+        if (_child && _child != prev)
+            _child->close(shared_from_this());
         //this node is a leaf and must initiate the closure
-        if (_children.empty())
+        if (!_child)
             performClosure();
-    }
-
-    template<class MPolicy>
-    bool Stream<MPolicy>::subtreeNeedsToBeClosed() const {
-        return _subtreeNeedsToBeClosed;
-    }
-
-    template<typename MPolicy>
-    void Stream<MPolicy>::recalcClosureNecessity() {
-        bool ans = _needsToBeClosed;
-        for (auto &child : _children)
-            ans = (ans || child->subtreeNeedsToBeClosed());
-        _subtreeNeedsToBeClosed = ans;
-        if (auto parent = _parent.lock())
-            if (parent->subtreeNeedsToBeClosed() != ans) //gives amortized O(1)
-                parent->recalcClosureNecessity();
-    }
-
-    template<class MPolicy>
-    void Stream<MPolicy>::setClosureNecessity(bool flag) {
-        _needsToBeClosed = flag;
-        recalcClosureNecessity();
     }
 
     template<class MPolicy>
@@ -98,8 +86,8 @@ namespace p2p::Basic::Network {
     template<class MPolicy>
     void Stream<MPolicy>::receive(Buffer msg) {
         MPolicy::spreadMessage(msg);
-        for (auto &child : _children)
-            child->receive(msg);
+        if (_child)
+            _child->receive(msg);
     }
 
     template<class MPolicy>

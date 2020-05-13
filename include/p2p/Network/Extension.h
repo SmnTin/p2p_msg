@@ -11,9 +11,11 @@ namespace p2p::Network {
 
     class IExtension : public std::enable_shared_from_this<IExtension> {
     public:
-        virtual void append(IExtensionPtr child) = 0;
+        virtual void setChild(IExtensionPtr child) = 0;
+        virtual void setChild(std::nullptr_t child) = 0;
 
         virtual void setParent(IExtensionPtr parent) = 0;
+        virtual void setParent(std::nullptr_t parent) = 0;
 
         virtual void extendStream(IStreamPtr stream) = 0;
     };

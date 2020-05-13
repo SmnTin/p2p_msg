@@ -137,8 +137,8 @@ namespace p2p::Network {
         AnyPtr anySlow() const;
         AnyPtr anySlow();
 
-        AnyPtr operator[](const Buffer &name) const;
-        AnyPtr operator[](const Buffer &name);
+        AnyPtr operator[](const std::string &name) const;
+        AnyPtr operator[](const std::string &name);
 
         typename AllContainer::iterator begin();
         typename AllContainer::iterator end();

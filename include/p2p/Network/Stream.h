@@ -13,14 +13,20 @@ namespace p2p::Network {
 
     //use only these classes to own instances of IStream
     typedef std::shared_ptr<IStream> IStreamPtr;
-    typedef std::weak_ptr<IStream> IStreamWPtr;
+    typedef std::weak_ptr<IStream> IStreamWPtr; //recommended ptr to use inside the code
 
+    //basically just a linked list
+    //but can be split by routing IStream nodes
     class IStream : public std::enable_shared_from_this<IStream> {
     public:
-        virtual void append(IStreamPtr child) = 0;
+        //may throw if concrete IStream provides another appending mechanism
+        virtual void setChild(IStreamPtr child) = 0;
+        virtual void setChild(std::nullptr_t child) = 0;
 
-        //should be automatically invoked inside append() to create bidirectional link
+        //should be automatically invoked inside setChild()
+        // or other appending mechanism to create bidirectional link
         virtual void setParent(IStreamPtr parent) = 0;
+        virtual void setParent(std::nullptr_t parent) = 0;
 
         //this method is invoked when the connection has been opened by this side
         virtual void performHandshake() = 0;
@@ -38,13 +44,6 @@ namespace p2p::Network {
 
         //true if closure was successful regardless the invocation side
         virtual bool closed() const = 0;
-
-        //return true if any stream in the subtree needs to be closed
-        //stream whose field is true won't be destroyed until close() is true too
-        virtual bool subtreeNeedsToBeClosed() const = 0;
-
-        //goes up to the root
-        virtual void recalcClosureNecessity() = 0;
 
         virtual void receive(Buffer buf) = 0;
         virtual void send(Buffer buf) = 0;

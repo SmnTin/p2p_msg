@@ -8,23 +8,34 @@ namespace p2p::Basic::Network {
 
     class Extension : public IExtension {
     public:
-        void append(IExtensionPtr child) override {
-            child->setParent(shared_from_this());
-            _children.emplace_back(std::move(child));
+        void setChild(IExtensionPtr child) override {
+            if (_child)
+                _child->setParent(nullptr);
+            if (child)
+                child->setParent(shared_from_this());
+            _child = std::move(child);
+        }
+
+        void setChild(std::nullptr_t child) override {
+            setChild(IExtensionPtr(child));
         }
 
         void setParent(IExtensionPtr parent) override {
             _parent = IExtensionWPtr(parent);
         }
 
+        void setParent(std::nullptr_t parent) override {
+            _parent = IExtensionWPtr();
+        }
+
         void extendStream(IStreamPtr stream) override {
-            for (auto &child : _children)
-                child->extendStream(stream);
+            if (_child)
+                _child->extendStream(stream);
         }
 
     protected:
         IExtensionWPtr _parent;
-        std::vector<IExtensionPtr> _children;
+        IExtensionPtr _child;
     };
 }
 

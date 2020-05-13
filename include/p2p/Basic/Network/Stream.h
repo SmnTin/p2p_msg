@@ -51,9 +51,11 @@ namespace p2p::Basic::Network {
     public:
         Stream();
 
-        void append(IStreamPtr child) override;
+        void setChild(IStreamPtr child) override;
+        void setChild(std::nullptr_t child) override;
 
         void setParent(IStreamPtr parent) override;
+        void setParent(std::nullptr_t parent) override;
 
         //just passes it further
         void performHandshake() override;
@@ -66,10 +68,6 @@ namespace p2p::Basic::Network {
         bool closed() const override;
 
         void close(IStreamPtr prev) override;
-        //true if all the children don't need to be closed
-        bool subtreeNeedsToBeClosed() const override;
-        void recalcClosureNecessity() override;
-        virtual void setClosureNecessity(bool flag);
 
         void send(Buffer msg) override;
         void receive(Buffer msg) override;
@@ -89,12 +87,11 @@ namespace p2p::Basic::Network {
         std::optional<Endpoint> _endpoint;
 
         IStreamWPtr _parent;
-        std::vector<IStreamPtr> _children;
+        //holds strong pointer to the child to manage its memory
+        IStreamPtr _child;
 
         bool _opened = false;
         bool _closed = false;
-        bool _needsToBeClosed = false;
-        bool _subtreeNeedsToBeClosed = false;
     };
 }
 
