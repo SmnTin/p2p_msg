@@ -7,6 +7,8 @@
 #include "p2p/Crypto/AES.h"
 #include "p2p/Basic/Host/HostKeyPair.h"
 
+///TODO: TESTS!!!
+
 namespace p2p::Basic::Network {
     class ECCStream : public Stream<> {
     public:

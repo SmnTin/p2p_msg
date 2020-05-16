@@ -11,7 +11,7 @@ namespace p2p {
         static_cast<bool>(expr) ? \
             void(0) \
             : \
-            throw_p2p_exception((((std::string)"Assertion failed! ") + #expr + details).c_str());
+            throw_p2p_exception((((std::string)"Assertion failed: ") + #expr + " " + details).c_str());
 }
 
 #endif

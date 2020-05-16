@@ -3,6 +3,7 @@
 #include "p2p/Common/diTest.h"
 #include "p2p/Basic/Network/StreamTest.h"
 #include "p2p/Network/AnySelectorTest.h"
+#include "p2p/Basic/Routers/ProtocolRouterTest.h"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

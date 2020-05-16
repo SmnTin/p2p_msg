@@ -7,6 +7,7 @@
 #include "p2p/Common/Subscription.h"
 #include "p2p/NodeId.h"
 #include "p2p/Network/Endpoint.h"
+#include "p2p/Common/InheritableSharedFromThis.h"
 
 namespace p2p::Network {
     class IStream;
@@ -17,7 +18,7 @@ namespace p2p::Network {
 
     //basically just a linked list
     //but can be split by routing IStream nodes
-    class IStream : public std::enable_shared_from_this<IStream> {
+    class IStream : public inheritable_enable_shared_from_this<IStream> {
     public:
         //may throw if concrete IStream provides another appending mechanism
         virtual void setChild(IStreamPtr child) = 0;
