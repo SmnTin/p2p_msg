@@ -25,12 +25,6 @@ namespace p2p::Crypto::ECC {
         return keyPair;
     }
 
-    std::future<KeyPair> generateKeysAsync() {
-        return std::async([]() {
-            return generateKeys();
-        });
-    }
-
     void generateSharedKey(const PublicKey &pubKey, const PrivateKey &priKey, SharedKey &sharedKey) {
         uint8_t o_pub[ECC_BYTES + 1];
         uint8_t o_pri[ECC_BYTES];
@@ -48,12 +42,6 @@ namespace p2p::Crypto::ECC {
         SharedKey key;
         generateSharedKey(keyPair.publicKey, keyPair.privateKey, key);
         return key;
-    }
-
-    std::future<SharedKey> generateSharedKeyAsync(const KeyPair &keyPair) {
-        return std::async([&keyPair]() {
-            return generateSharedKey(keyPair);
-        });
     }
 
     NodeId NodeIdFactory::fromPublicKey(const PublicKey &publicKey) {

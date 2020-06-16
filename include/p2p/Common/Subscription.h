@@ -16,11 +16,31 @@ namespace p2p {
 
     class Subscription {
     public:
+        explicit Subscription() = default;
+
         explicit Subscription(std::size_t id,
                               IPublisher *pub,
-                              std::shared_ptr<bool> existionMarker)
+                              std::shared_ptr<bool> existenceMarker)
                 : _pubPtr(pub), _active(true), _id(id),
-                  _existenceMarker(existionMarker) {}
+                  _existenceMarker(std::move(existenceMarker)) {}
+
+        Subscription(const Subscription &other) = delete;
+        Subscription(Subscription &&other) noexcept {
+            *this = std::move(other);
+        }
+
+        Subscription &operator=(Subscription &&other) {
+            if (_existenceMarker.lock() == other._existenceMarker.lock() && _id == other._id)
+                return *this;
+            unsubscribe();
+            _pubPtr = other._pubPtr;
+            _existenceMarker = std::move(other._existenceMarker);
+            _active = other._active;
+            other._active = false;
+            _id = other._id;
+
+            return *this;
+        }
 
         void unsubscribe() {
             if (active()) {
@@ -41,21 +61,21 @@ namespace p2p {
         // raw pointer because otherwise it would require
         // std::enable_shared_from_this from Publisher and
         // that results in obligatory storing Publisher in std::shared_ptr
-        IPublisher *_pubPtr;
+        IPublisher *_pubPtr = nullptr;
         std::weak_ptr<bool> _existenceMarker;
-        bool _active;
-        std::size_t _id;
+        bool _active = false;
+        std::size_t _id = 0;
     };
 
     namespace Basic {
-        template<class Data>
+        template<class ...Data>
         class Publisher : public IPublisher {
         public:
             Publisher() = default;
-            Publisher(const Publisher &) {}
-            Publisher(Publisher &&) noexcept {}
+            Publisher(const Publisher &) = delete;
+            Publisher(Publisher &&other) = default;
 
-            typedef std::function<void(Data)> Callback;
+            typedef std::function<void(Data...)> Callback;
 
             Subscription subscribe(Callback cb) {
                 auto id = _subIdCnt++;
@@ -64,14 +84,12 @@ namespace p2p {
                 return Subscription(id, this, _existionMarker);
             }
 
-            void publish(Data data) {
+            void publish(Data ...data) {
                 for (auto &cb : _subs)
-                    cb.second(data);
+                    cb.second(data...);
             }
 
-            ~Publisher() override {
-            }
-
+            ~Publisher() override = default;
         protected:
             void onUnsubscribe(std::size_t subId) override {
                 _subs.erase(subId);

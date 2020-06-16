@@ -4,3 +4,6 @@
 [submodule "libs/AES"]
 	path = libs/AES
 	url = https://github.com/SergeyBel/AES
+[submodule "libs/continuable"]
+	path = libs/continuable
+	url = https://github.com/Naios/continuable.git
