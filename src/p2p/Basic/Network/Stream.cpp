@@ -12,26 +12,24 @@ namespace p2p::Basic::Network {
 
     template<class MPolicy>
     void Stream<MPolicy>::setChild(IStreamPtr child) {
-        if (_child)
-            _child->setParent(nullptr);
-        if (child)
-            child->setParent(shared_from_this());
         _child = (std::move(child));
     }
 
     template<class MPolicy>
-    void Stream<MPolicy>::setChild(std::nullptr_t child) {
-        setChild(IStreamPtr(child));
+    void Stream<MPolicy>::append(IStreamPtr child) {
+        if (_child)
+            _child->setParent(nullptr);
+        if (child)
+            child->setParent(shared_from_this());
+        setChild(child);
     }
 
     template<class MPolicy>
     void Stream<MPolicy>::setParent(IStreamPtr parent) {
-        _parent = IStreamWPtr(parent);
-    }
-
-    template<class MPolicy>
-    void Stream<MPolicy>::setParent(std::nullptr_t parent) {
-        _parent = IStreamWPtr();
+        if (parent)
+            _parent = IStreamWPtr(parent);
+        else
+            _parent = IStreamWPtr();
     }
 
     //just passes it further
@@ -56,12 +54,12 @@ namespace p2p::Basic::Network {
     }
 
     template<class MPolicy>
-    bool Stream<MPolicy>::opened() const {
+    bool Stream<MPolicy>::opened() {
         return _opened;
     }
 
     template<class MPolicy>
-    bool Stream<MPolicy>::closed() const {
+    bool Stream<MPolicy>::closed() {
         return _closed;
     }
 
@@ -91,14 +89,6 @@ namespace p2p::Basic::Network {
     }
 
     template<class MPolicy>
-    NodeId Stream<MPolicy>::getNodeId() const {
-        if (!_nodeId.has_value())
-            if (auto parent = _parent.lock())
-                return parent->getNodeId();
-        return _nodeId.value();
-    }
-
-    template<class MPolicy>
     NodeId Stream<MPolicy>::getNodeId() {
         if (!_nodeId.has_value())
             if (auto parent = _parent.lock())
@@ -107,27 +97,11 @@ namespace p2p::Basic::Network {
     }
 
     template<class MPolicy>
-    Endpoint Stream<MPolicy>::getEndpoint() const {
-        if (!_endpoint.has_value())
-            if (auto parent = _parent.lock())
-                return parent->getEndpoint();
-        return _endpoint.value();
-    }
-
-    template<class MPolicy>
     Endpoint Stream<MPolicy>::getEndpoint() {
         if (!_endpoint.has_value())
             if (auto parent = _parent.lock())
                 _endpoint = parent->getEndpoint();
         return _endpoint.value();
-    }
-
-    template<class MPolicy>
-    TransportTraits Stream<MPolicy>::getTraits() const {
-        if (!_transportTraits.has_value())
-            if (auto parent = _parent.lock())
-                return parent->getTraits();
-        return _transportTraits.value();
     }
 
     template<class MPolicy>

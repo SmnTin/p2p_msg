@@ -63,7 +63,7 @@ namespace p2p::Basic::Network {
                                  public inheritable_enable_shared_from_this<ProtocolRouterStream> {
     public:
         void setChild(IStreamPtr) override; //prohibited
-        void setChild(std::nullptr_t) override; //prohibited
+        void append(IStreamPtr) override; //prohibited
 
         void receive(Buffer msg) override;
         void send(Buffer) override; //prohibited
@@ -76,7 +76,6 @@ namespace p2p::Basic::Network {
             InternalStream(ProtocolRouterStreamWPtr parent, ProtocolParams params);
 
             void setParent(IStreamPtr) override; //prohibited
-            void setParent(std::nullptr_t) override; //prohibited
 
             void send(Buffer msg) override;
 
@@ -102,8 +101,8 @@ namespace p2p::Basic::Network {
         virtual void registerProtocol(IExtensionPtr extension, const ProtocolParams &params);
         void extendStream(IStreamPtr stream) override;
 
+        void append(IExtensionPtr) override; //prohibited
         void setChild(IExtensionPtr) override; //prohibited
-        void setChild(std::nullptr_t) override; //prohibited
 
     private:
         std::map<std::string, std::pair<ProtocolParams, IExtensionPtr>> _protocols;

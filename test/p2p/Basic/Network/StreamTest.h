@@ -50,7 +50,7 @@ namespace {
         auto stream2 = std::make_shared<Stream<Messaging::QueuePolicy>>();
 
         EXPECT_FALSE(stream2->available());
-        stream1->setChild(stream2);
+        stream1->append(stream2);
 
         EXPECT_FALSE(stream2->available());
         Buffer msg1 = "goga";
@@ -73,7 +73,7 @@ namespace {
     TEST(BasicStream, Receive) {
         auto stream1 = std::make_shared<Stream<>>();
         auto stream2 = std::make_shared<testing::NiceMock<StreamMock>>();
-        stream1->setChild(stream2);
+        stream1->append(stream2);
 
         Buffer buf = "hello";
         EXPECT_CALL(*stream2, receive(buf))
@@ -94,8 +94,8 @@ namespace {
         auto stream3 = std::make_shared<Stream<>>();
 
         stream1->setParent(mock);
-        stream1->setChild(stream2);
-        stream2->setChild(stream3);
+        stream1->append(stream2);
+        stream2->append(stream3);
 
         stream2->send(buf);
     }
@@ -106,9 +106,9 @@ namespace {
         auto stream3 = std::make_shared<Stream<>>();
         auto stream4 = std::make_shared<testing::NiceMock<StreamMock>>();
 
-        stream1->setChild(stream2);
-        stream2->setChild(stream3);
-        stream3->setChild(stream4);
+        stream1->append(stream2);
+        stream2->append(stream3);
+        stream3->append(stream4);
 
         EXPECT_TRUE(stream1->opened());
         EXPECT_TRUE(stream2->opened());
@@ -130,8 +130,8 @@ namespace {
         auto stream4 = std::make_shared<Stream<>>();
 
         stream2->setParent(stream1);
-        stream2->setChild(stream3);
-        stream3->setChild(stream4);
+        stream2->append(stream3);
+        stream3->append(stream4);
 
         EXPECT_CALL(*stream1, performClosure())
                 .Times(1);
@@ -154,8 +154,8 @@ namespace {
         auto stream4 = std::make_shared<Stream<>>();
 
         stream2->setParent(stream1);
-        stream2->setChild(stream3);
-        stream3->setChild(stream4);
+        stream2->append(stream3);
+        stream3->append(stream4);
 
         EXPECT_CALL(*stream1, performClosure())
                 .Times(1);
@@ -182,11 +182,11 @@ namespace {
         auto stream5 = std::make_shared<Stream<>>();
         auto stream6 = std::make_shared<Stream<>>();
 
-        stream1->setChild(stream2);
-        stream2->setChild(stream3);
-        stream3->setChild(stream4);
-        stream4->setChild(stream5);
-        stream5->setChild(stream6);
+        stream1->append(stream2);
+        stream2->append(stream3);
+        stream3->append(stream4);
+        stream4->append(stream5);
+        stream5->append(stream6);
 
         EXPECT_EQ(stream3->getNodeId(), id);
         EXPECT_EQ(stream4->getNodeId(), id);
@@ -223,10 +223,10 @@ namespace {
         EXPECT_CALL(*mock, send("b"))
                 .Times(1);
 
-        stream1->setChild(stream2);
+        stream1->append(stream2);
         stream2->send("a");
 
-        stream1->setChild(stream3);
+        stream1->append(stream3);
         stream2->send("a");
         stream3->send("b");
     }

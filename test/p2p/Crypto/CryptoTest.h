@@ -20,17 +20,6 @@ namespace {
         EXPECT_EQ(sh1, sh2);
     }
 
-    TEST(ECC, SharedKeyAsync) {
-        ECC::KeyPair pair1, pair2;
-        pair1 = ECC::generateKeys();
-        pair2 = ECC::generateKeysAsync().get();
-
-        ECC::SharedKey sh1, sh2;
-        sh1 = ECC::generateSharedKey(ECC::KeyPair{pair1.publicKey, pair2.privateKey});
-        sh2 = ECC::generateSharedKeyAsync(ECC::KeyPair{pair2.publicKey, pair1.privateKey}).get();
-        EXPECT_EQ(sh1, sh2);
-    }
-
     TEST(AES, ECB_EncryptDecrypt) {
         ECC::PublicKey pub;
         ECC::PrivateKey pri;

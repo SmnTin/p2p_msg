@@ -6,7 +6,7 @@
 namespace p2p::Network {
 
     struct Endpoint {
-        Buffer transportName;
+        std::string transportName;
         Buffer data;
 
         bool operator==(const Endpoint &b) const {

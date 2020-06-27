@@ -7,3 +7,6 @@
 [submodule "libs/continuable"]
 	path = libs/continuable
 	url = https://github.com/Naios/continuable.git
+[submodule "libs/function2"]
+	path = libs/function2
+	url = https://github.com/Naios/function2.git

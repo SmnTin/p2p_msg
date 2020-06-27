@@ -64,7 +64,8 @@ file(GLOB_RECURSE SOURCE
 
 #-----------------------TARGETS--------------------------#
 add_library(p2p_msg STATIC ${HEADERS} ${SOURCE})
-target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES} easy-ecc hash-library aes-library)
+target_link_libraries(p2p_msg ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES}
+        easy-ecc hash-library aes-library function2 continuable)
 
 add_executable(p2p_exec ${SOURCE})
 target_link_libraries(p2p_exec p2p_msg)

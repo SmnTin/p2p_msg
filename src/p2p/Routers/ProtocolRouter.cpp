@@ -45,15 +45,11 @@ namespace p2p::Basic::Network {
         throw NotImplementedException();
     }
 
-    void ProtocolRouterStream::InternalStream::setParent(std::nullptr_t) {
-        throw NotImplementedException();
-    }
-
     void ProtocolRouterStream::setChild(IStreamPtr) {
         throw NotImplementedException();
     }
 
-    void ProtocolRouterStream::setChild(std::nullptr_t) {
+    void ProtocolRouterStream::append(IStreamPtr) {
         throw NotImplementedException();
     }
 
@@ -139,11 +135,11 @@ namespace p2p::Basic::Network {
         _protocols[params.getName()] = {params, extension};
     }
 
-    void ProtocolRouterExtension::setChild(IExtensionPtr) {
+    void ProtocolRouterExtension::append(IExtensionPtr) {
         throw NotImplementedException();
     }
 
-    void ProtocolRouterExtension::setChild(std::nullptr_t) {
+    void ProtocolRouterExtension::setChild(IExtensionPtr) {
         throw NotImplementedException();
     }
 }

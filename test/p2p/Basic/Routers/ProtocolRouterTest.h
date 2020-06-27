@@ -41,8 +41,8 @@ namespace {
         auto ext0 = std::make_shared<ProtocolRouterExtension>();
         auto ext1 = std::make_shared<Extension>();
 
-        EXPECT_ANY_THROW(ext0->setChild(ext1));
-        EXPECT_ANY_THROW(ext0->setChild(nullptr));
+        EXPECT_ANY_THROW(ext0->append(ext1));
+        EXPECT_ANY_THROW(ext0->append(nullptr));
 
         auto stream0 = std::make_shared<ProtocolRouterStream>();
         auto stream1 = std::make_shared<ProtocolRouterStream>();
@@ -66,7 +66,7 @@ namespace {
         auto proto = std::make_shared<Stream<>>();
 
         auto branch = router->registerProtocol(params);
-        branch->setChild(proto);
+        branch->append(proto);
 
         EXPECT_ANY_THROW(branch->setParent(router));
         EXPECT_ANY_THROW(branch->setParent(nullptr));
@@ -92,8 +92,8 @@ namespace {
         router->setParent(mock);
         auto branch1 = router->registerProtocol(params1);
         auto branch2 = router->registerProtocol(params2);
-        branch1->setChild(proto1);
-        branch2->setChild(proto2);
+        branch1->append(proto1);
+        branch2->append(proto2);
 
         router->receive("/abc/0.9.5/hello");
         EXPECT_TRUE(proto1->read() == "hello");

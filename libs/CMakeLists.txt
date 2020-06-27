@@ -10,3 +10,5 @@ add_library(hash-library STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/hash-lib/crc32.cpp)
 add_library(aes-library STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/AES/AES.cpp)
+add_subdirectory(function2)
+add_subdirectory(continuable)

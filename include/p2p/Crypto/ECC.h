@@ -25,10 +25,8 @@ namespace p2p::Crypto::ECC {
 
     void generateKeys(PublicKey &pubKey, PrivateKey &priKey);
     KeyPair generateKeys();
-    std::future<KeyPair> generateKeysAsync();
     void generateSharedKey(const PublicKey &pubKey, const PrivateKey &priKey, SharedKey &sharedKey);
     SharedKey generateSharedKey(const KeyPair &keyPair);
-    std::future<SharedKey> generateSharedKeyAsync(const KeyPair &keyPair);
 }
 
 #endif //P2P_MSG_CRYPTO_ECC_H

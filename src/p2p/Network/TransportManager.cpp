@@ -6,7 +6,7 @@ namespace p2p::Network {
     class TransportManager::Impl {
     public:
         Impl() {
-            _rootExtension = std::make_shared<Basic::Network::Extension>();
+            _rootExtension = std::make_shared<Basic::Network::RootExtension>();
         }
 
         void add(ITransportPtr transport) {
@@ -15,7 +15,7 @@ namespace p2p::Network {
         }
 
         void extend(IExtensionPtr extension) {
-            _rootExtension->setChild(std::move(extension));
+            _rootExtension->append(std::move(extension));
         }
 
         const TransportSelector &select() {
@@ -31,11 +31,11 @@ namespace p2p::Network {
     }
 
     void TransportManager::add(ITransportPtr transport) {
-        _impl->add(transport);
+        _impl->add(std::move(transport));
     }
 
     void TransportManager::extend(IExtensionPtr extension) {
-        _impl->extend(extension);
+        _impl->extend(std::move(extension));
     }
 
     const TransportSelector& TransportManager::select() {

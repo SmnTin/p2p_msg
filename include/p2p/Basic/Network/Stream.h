@@ -51,11 +51,11 @@ namespace p2p::Basic::Network {
     public:
         Stream();
 
+        void append(IStreamPtr child) override;
+
         void setChild(IStreamPtr child) override;
-        void setChild(std::nullptr_t child) override;
 
         void setParent(IStreamPtr parent) override;
-        void setParent(std::nullptr_t parent) override;
 
         //just passes it further
         void performHandshake() override;
@@ -63,22 +63,19 @@ namespace p2p::Basic::Network {
         //just passes it further
         void performClosure() override;
 
-        bool opened() const override;
+        bool opened() override;
 
-        bool closed() const override;
+        bool closed() override;
 
         void close(IStreamPtr prev) override;
 
         void send(Buffer msg) override;
         void receive(Buffer msg) override;
 
-        NodeId getNodeId() const override;
         NodeId getNodeId() override;
 
-        TransportTraits getTraits() const override;
         TransportTraits getTraits() override;
 
-        Endpoint getEndpoint() const override;
         Endpoint getEndpoint() override;
 
     protected:

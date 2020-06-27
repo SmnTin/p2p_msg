@@ -46,7 +46,7 @@ namespace p2p::Basic::Network {
         void extendStream(IStreamPtr stream) override {
             IStreamPtr extended =
                     std::make_shared<ECCStream>(_hostPrivateKey);
-            extended->setChild(stream);
+            extended->append(stream);
             if (_child)
                 _child->extendStream(extended);
         }
