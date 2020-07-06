@@ -187,6 +187,10 @@ namespace p2p::Network {
         const StreamSelector &operator[](const NodeId &id) const {
             return at(id);
         }
+
+        StreamSelector &operator[](const NodeId &id) {
+            return std::unordered_map<NodeId, StreamSelector>::operator[](id);
+        }
     };
 }
 

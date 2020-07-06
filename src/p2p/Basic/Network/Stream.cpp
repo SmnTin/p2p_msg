@@ -78,14 +78,17 @@ namespace p2p::Basic::Network {
     template<class MPolicy>
     void Stream<MPolicy>::send(Buffer msg) {
         if (!_parent.expired())
-            _parent.lock()->send(msg);
+            _parent.lock()->send(std::move(msg));
     }
 
     template<class MPolicy>
     void Stream<MPolicy>::receive(Buffer msg) {
-        MPolicy::spreadMessage(msg);
-        if (_child)
-            _child->receive(msg);
+        if (_child) {
+            MPolicy::spreadMessage(msg);
+            _child->receive(std::move(msg));
+        } else {
+            MPolicy::spreadMessage(std::move(msg));
+        }
     }
 
     template<class MPolicy>

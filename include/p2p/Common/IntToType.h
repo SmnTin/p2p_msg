@@ -5,7 +5,7 @@ namespace p2p {
     template<int v>
     struct IntToType {
         enum {
-            value = v;
+            value = v
         };
     };
 }

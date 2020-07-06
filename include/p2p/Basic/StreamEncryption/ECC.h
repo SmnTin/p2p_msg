@@ -13,28 +13,63 @@ namespace p2p::Basic::Network {
     class ECCStream : public Stream<> {
     public:
         explicit ECCStream(Crypto::ECC::PrivateKey hostPrivateKey) {
+            _hostPrivateKey = hostPrivateKey;
+        }
+
+        void receive(Buffer msg) override {
+            _generateKey();
+            if (_child) {
+                auto len = _extractMsgSize(msg);
+                auto decrypted = Crypto::AES::decryptECB(_extractMsg(msg),
+                                                         _sharedKey.value())
+                        .substr(0, len);
+                _child->receive(decrypted);
+            }
+        }
+
+        void send(Buffer msg) override {
+            _generateKey();
+            if (auto parent = _parent.lock()) {
+                auto encrypted = Crypto::AES::encryptECB(msg, _sharedKey.value());
+                parent->send(_putMsgSize(encrypted, msg.size()));
+            }
+        }
+
+    private:
+        typedef uint32_t SizeT;
+
+        void _generateKey() {
+            if (_sharedKey.has_value())
+                return;
             Crypto::ECC::PublicKey nodePublicKey = getNodeId().data();
             _sharedKey = Crypto::ECC::generateSharedKey(
                     Crypto::ECC::KeyPair{
                             nodePublicKey,
-                            hostPrivateKey
+                            _hostPrivateKey
                     });
         }
 
-        void receive(Buffer msg) override {
-            auto decrypted = Crypto::AES::decryptECB(msg, _sharedKey);
-            if (_child)
-                _child->receive(decrypted);
+        SizeT _extractMsgSize(Buffer msg) {
+            if (msg.size() < sizeof(SizeT))
+                throw_p2p_exception("The received message is too short to contain a 4-byte integer.");
+            SizeT val = *reinterpret_cast<SizeT *>(msg.data());
+            val = networkToHostByteOrder(val);
+            return val;
         }
 
-        void send(Buffer msg) override {
-            auto encrypted = Crypto::AES::encryptECB(msg, _sharedKey);
-            if (auto parent = _parent.lock())
-                parent->send(encrypted);
+        Buffer _extractMsg(Buffer msg) {
+            return msg.substr(sizeof(SizeT));
         }
 
-    private:
-        Crypto::ECC::SharedKey _sharedKey;
+        Buffer _putMsgSize(Buffer msg, SizeT size) {
+            auto net = hostToNetworkByteOrder(size);
+            auto raw = reinterpret_cast<uint8_t *>(&net);
+            auto enc = Buffer(raw, raw + sizeof(SizeT));
+            return enc + msg;
+        }
+
+        Crypto::ECC::PrivateKey _hostPrivateKey;
+        std::optional<Crypto::ECC::SharedKey> _sharedKey;
     };
 
     class ECCExtension : public Extension {
@@ -46,7 +81,7 @@ namespace p2p::Basic::Network {
         void extendStream(IStreamPtr stream) override {
             IStreamPtr extended =
                     std::make_shared<ECCStream>(_hostPrivateKey);
-            extended->append(stream);
+            stream->append(extended);
             if (_child)
                 _child->extendStream(extended);
         }

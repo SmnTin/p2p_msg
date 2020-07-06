@@ -78,7 +78,8 @@ file(GLOB_RECURSE TESTS
 add_executable(test ${TESTS})
 
 target_include_directories(test PRIVATE
-        "${PROJECT_SOURCE_DIR}/test")
+        "${PROJECT_SOURCE_DIR}/test"
+        "${PROJECT_SOURCE_DIR}/src")
 
 target_link_libraries(test
         gtest_main

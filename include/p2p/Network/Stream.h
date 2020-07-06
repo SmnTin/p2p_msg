@@ -12,15 +12,14 @@
 namespace p2p::Network {
     class IStream;
 
-    //use only these classes to own instances of IStream
+    //use only these classes to manage instances of IStream
+    //recommended ptr to explicitly own the intance
     typedef std::shared_ptr<IStream> IStreamPtr;
-    //recommended ptr to use inside the code
+    //recommended ptr to use inside the regular code
     typedef std::weak_ptr<IStream> IStreamWPtr;
-    //recommended ptr to use when Stream must be never exposed to other parts of code
-    typedef std::unique_ptr<IStream> IStreamUPtr;
 
     //basically just a linked list
-    //but can be split by routing IStream nodes
+    // but can be split by routing IStream nodes
     class IStream : public inheritable_enable_shared_from_this<IStream> {
     public:
         //may throw if concrete IStream provides another appending mechanism
@@ -30,7 +29,7 @@ namespace p2p::Network {
         //may throw if concrete IStream provides another appending mechanism
         virtual void setChild(IStreamPtr child) = 0;
 
-        //should be automatically invoked inside append()
+        //should be automatically invoked inside append() of parent
         // or other appending mechanism to create bidirectional link
         virtual void setParent(IStreamPtr parent) = 0;
 
@@ -55,7 +54,7 @@ namespace p2p::Network {
         virtual void send(Buffer buf) = 0;
 
         //must be set once at tree creation
-        //and lazily propagated through the tree
+        // and lazily propagated through the tree
         virtual NodeId getNodeId() = 0;
 
         virtual TransportTraits getTraits() = 0;
