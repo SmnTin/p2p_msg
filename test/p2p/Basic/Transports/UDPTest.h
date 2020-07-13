@@ -15,14 +15,16 @@ namespace {
     using namespace p2p::Basic::Network;
     using namespace p2p::Basic;
 
-    TEST(UDPTransport, EndpointTranslationTest) {
+    TEST(UDPTransport, Endpoint_V4_TranslationTest) {
         UDPSocketEndpoint sockEndp1(
                 boost::asio::ip::address_v4::from_string("192.172.105.5"),
                 18090);
         auto endpoint1 = UDPEndpointTranslation::serialize(sockEndp1);
         auto sockEndp2 = UDPEndpointTranslation::deserialize(endpoint1);
         EXPECT_EQ(sockEndp1, sockEndp2);
+    }
 
+    TEST(UDPTransport, Endpoint_V6_TranslationTest) {
         UDPSocketEndpoint sockEndp3(
                 boost::asio::ip::address_v6::from_string(
                         "EF01:162B:AB09:CD45:EFFF:165A:ABBA:CDE4"),

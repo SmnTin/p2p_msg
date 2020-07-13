@@ -9,6 +9,8 @@
 #include <regex>
 #include <utility>
 
+///TODO: performHandshake(), performClosure(), reportThatOpened()
+
 namespace p2p::Basic::Network {
     class ProtocolParams {
     public:
