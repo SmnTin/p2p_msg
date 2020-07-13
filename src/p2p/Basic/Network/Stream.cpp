@@ -35,22 +35,25 @@ namespace p2p::Basic::Network {
     //just passes it further
     template<class MPolicy>
     void Stream<MPolicy>::performHandshake() {
+        _opened = true;
         if (_child)
             _child->performHandshake();
+        else
+            reportThatOpened();
     }
 
     //just passes it further
     template<class MPolicy>
     void Stream<MPolicy>::performClosure() {
-        size_t unclosedCnt = 0;
-        if (_child && _child->opened() && !_child->closed())
-            unclosedCnt++;
-        if (unclosedCnt == 0) {
-            //actually close
-            _closed = true;
-            if (!_parent.expired())
-                _parent.lock()->performClosure();
-        }
+        _closed = true;
+        if (auto parent = _parent.lock())
+            parent->performClosure();
+    }
+
+    template<class MPolicy>
+    void Stream<MPolicy>::reportThatOpened() {
+        if (auto parent = _parent.lock())
+            parent->reportThatOpened();
     }
 
     template<class MPolicy>

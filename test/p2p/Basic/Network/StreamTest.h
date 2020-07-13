@@ -230,6 +230,22 @@ namespace {
         stream2->send("a");
         stream3->send("b");
     }
+
+    TEST(BasicStream, reportThatOpened) {
+        auto stream1 = std::make_shared<testing::NiceMock<StreamMock>>();
+        auto stream2 = std::make_shared<Stream<>>();
+        auto stream3 = std::make_shared<Stream<>>();
+        auto stream4 = std::make_shared<Stream<>>();
+
+        stream2->setParent(stream1);
+        stream2->append(stream3);
+        stream3->append(stream4);
+
+        EXPECT_CALL(*stream1, reportThatOpened())
+                .Times(1);
+
+        stream2->performHandshake();
+    }
 }
 
 #endif //P2P_MSG_STREAMTEST_H

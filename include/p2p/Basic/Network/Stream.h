@@ -63,6 +63,9 @@ namespace p2p::Basic::Network {
         //just passes it further
         void performClosure() override;
 
+        //just passes it further
+        void reportThatOpened() override;
+
         bool opened() override;
 
         bool closed() override;

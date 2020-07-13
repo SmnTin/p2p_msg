@@ -17,6 +17,7 @@ namespace {
         MOCK_METHOD(void, setParent, (IStreamPtr), (override));
         MOCK_METHOD(void, performHandshake, (), (override));
         MOCK_METHOD(void, performClosure, (), (override));
+        MOCK_METHOD(void, reportThatOpened, (), (override));
         MOCK_METHOD(bool, opened, (), (override));
         MOCK_METHOD(bool, closed, (), (override));
         MOCK_METHOD(void, close, (IStreamPtr), (override));

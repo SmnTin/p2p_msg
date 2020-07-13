@@ -34,9 +34,15 @@ namespace p2p::Network {
         virtual void setParent(IStreamPtr parent) = 0;
 
         //this method is invoked when the connection has been opened by this side
+        //invocation flow goes from parent to children
         virtual void performHandshake() = 0;
 
+        //this method should be invoked by children to notify that they and their children were opened successfully
+        //invocation flow goes from children to parent
+        virtual void reportThatOpened() = 0;
+
         //this method is invoked when the connection is going to be closed by this side
+        //invocation flow goes from children to parent
         virtual void performClosure() = 0;
 
         //true if handshake was successful regardless the invocation side
@@ -44,13 +50,17 @@ namespace p2p::Network {
 
         //should be implemented as simple dfs traverse
         //can be initiated from any node
-        //will close the whole tree
+        //will close the whole tree by calling performClosure of the leaf nodes
         virtual void close(IStreamPtr prev) = 0;
 
         //true if closure was successful regardless the invocation side
         virtual bool closed() = 0;
 
+        //the message was received by transport and should be propogated to the children
+        //invocation flow goes from parent to children
         virtual void receive(Buffer buf) = 0;
+
+        //invocation flow goes from children to parent
         virtual void send(Buffer buf) = 0;
 
         //must be set once at tree creation
