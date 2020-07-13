@@ -75,23 +75,34 @@ namespace {
         EXPECT_ANY_THROW(router->registerProtocol(params));
     }
 
-    TEST(ProtocolRouterStream, send_receive) {
-        ProtocolParams params1("abc",
-                              {1, 0, 0},
-                              {0, 9, 4});
-        ProtocolParams params2("xyz",
-                              {0, 5, 0},
-                              {0, 2, 3});
+    class ProtocolRouterStreamTestFixture : public testing::Test {
+    protected:
+        void SetUp() override {
+            params1 = ProtocolParams("abc",
+                                   {1, 0, 0},
+                                   {0, 9, 4});
+            params2 = ProtocolParams("xyz",
+                                   {0, 5, 0},
+                                   {0, 2, 3});
+            mock = std::make_shared<testing::NiceMock<StreamMock>>();
+            router = std::make_shared<ProtocolRouterStream>();
 
-//        auto mock = std::make_shared<testing::NiceMock<StreamMock>>();
-        auto mock = std::make_shared<StreamMock>();
-        auto router = std::make_shared<ProtocolRouterStream>();
+            router->setParent(mock);
+
+            branch1 = router->registerProtocol(params1);
+            branch2 = router->registerProtocol(params2);
+        }
+
+        ProtocolParams params1, params2;
+        std::shared_ptr<testing::NiceMock<StreamMock>> mock;
+        std::shared_ptr<ProtocolRouterStream> router;
+        IStreamPtr branch1, branch2;
+    };
+
+    TEST_F(ProtocolRouterStreamTestFixture, send_receive) {
         auto proto1 = std::make_shared<Stream<Messaging::QueuePolicy>>();
         auto proto2 = std::make_shared<Stream<Messaging::QueuePolicy>>();
 
-        router->setParent(mock);
-        auto branch1 = router->registerProtocol(params1);
-        auto branch2 = router->registerProtocol(params2);
         branch1->append(proto1);
         branch2->append(proto2);
 
@@ -105,6 +116,51 @@ namespace {
 
         EXPECT_CALL(*mock, send("/abc/1.0.0/hi"));
         proto1->send("hi");
+    }
+
+    TEST_F(ProtocolRouterStreamTestFixture, performHandshake) {
+        auto proto1 = std::make_shared<testing::NiceMock<StreamMock>>();
+        auto proto2 = std::make_shared<testing::NiceMock<StreamMock>>();
+
+        branch1->append(proto1);
+        branch2->append(proto2);
+
+        EXPECT_CALL(*mock, reportThatOpened())
+            .Times(1);
+        EXPECT_CALL(*proto1, performHandshake())
+                .Times(1);
+        EXPECT_CALL(*proto2, performHandshake())
+                .Times(1);
+
+        EXPECT_TRUE(router->opened());
+        EXPECT_TRUE(branch1->opened());
+        EXPECT_TRUE(branch2->opened());
+
+        router->performHandshake();
+
+        branch1->reportThatOpened();
+        branch2->reportThatOpened();
+    }
+
+    TEST_F(ProtocolRouterStreamTestFixture, performClosure) {
+        auto proto1 = std::make_shared<Stream<>>();
+        auto proto2 = std::make_shared<Stream<>>();
+
+        branch1->append(proto1);
+        branch2->append(proto2);
+
+        EXPECT_CALL(*mock, performClosure())
+                .Times(1);
+
+        EXPECT_FALSE(router->closed());
+        EXPECT_FALSE(branch1->closed());
+        EXPECT_FALSE(branch2->closed());
+
+        router->close(nullptr);
+
+        EXPECT_TRUE(router->closed());
+        EXPECT_TRUE(branch1->closed());
+        EXPECT_TRUE(branch2->closed());
     }
 }
 

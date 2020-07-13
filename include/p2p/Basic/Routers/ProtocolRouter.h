@@ -9,8 +9,6 @@
 #include <regex>
 #include <utility>
 
-///TODO: performHandshake(), performClosure(), reportThatOpened()
-
 namespace p2p::Basic::Network {
     class ProtocolParams {
     public:
@@ -70,6 +68,11 @@ namespace p2p::Basic::Network {
         void receive(Buffer msg) override;
         void send(Buffer) override; //prohibited
 
+        void performHandshake() override;
+        void performClosure() override;
+        void reportThatOpened() override;
+        void close(IStreamPtr prev) override;
+
         IStreamPtr registerProtocol(const ProtocolParams &params);
 
     private:
@@ -81,9 +84,15 @@ namespace p2p::Basic::Network {
 
             void send(Buffer msg) override;
 
+            bool reportedThatOpened();
+
+            void reportThatOpened() override;
+
             const ProtocolParams &getParams();
 
         private:
+            bool _reported = false;
+
             ProtocolRouterStreamWPtr _internalParent;
             ProtocolParams _params;
         };

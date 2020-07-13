@@ -57,6 +57,55 @@ namespace p2p::Basic::Network {
         throw NotImplementedException();
     }
 
+    void ProtocolRouterStream::performHandshake() {
+        _opened = true;
+        for (auto[name, protocol] : _protocols)
+            protocol->performHandshake();
+    }
+
+    void ProtocolRouterStream::performClosure() {
+        size_t nonclosedCount = 0;
+        for (auto[name, protocol] : _protocols)
+            if (protocol->opened() && !protocol->closed())
+                ++nonclosedCount;
+        if (nonclosedCount == 0) {
+            _closed = true;
+            if (auto parent = _parent.lock())
+                parent->performClosure();
+        }
+    }
+
+    void ProtocolRouterStream::reportThatOpened() {
+        size_t nonreportedCount = 0;
+        for (auto[name, protocol] : _protocols)
+            if (!protocol->reportedThatOpened())
+                ++nonreportedCount;
+        if (nonreportedCount == 0) {
+            if (auto parent = _parent.lock())
+                parent->reportThatOpened();
+        }
+    }
+
+    void ProtocolRouterStream::close(IStreamPtr prev) {
+        auto _this = inheritable_enable_shared_from_this<ProtocolRouterStream>::shared_from_this();
+        if (auto parent = _parent.lock())
+            if (parent != prev)
+                parent->close(_this);
+        for (auto[name, protocol] : _protocols)
+            if (protocol != prev)
+                protocol->close(_this);
+    }
+
+    bool ProtocolRouterStream::InternalStream::reportedThatOpened() {
+        return _reported;
+    }
+
+    void ProtocolRouterStream::InternalStream::reportThatOpened() {
+        _reported = true;
+        if (auto parent = _parent.lock())
+            parent->reportThatOpened();
+    }
+
     const ProtocolParams &ProtocolRouterStream::InternalStream::getParams() {
         return _params;
     }
